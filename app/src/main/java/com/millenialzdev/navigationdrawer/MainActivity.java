@@ -1,0 +1,99 @@
+package com.millenialzdev.navigationdrawer;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import android.os.Bundle;
+import android.view.MenuItem;
+
+import com.google.android.material.navigation.NavigationView;
+
+public class MainActivity extends AppCompatActivity {
+
+    private DrawerLayout mDrawer;
+    private Toolbar toolbar;
+    private NavigationView nvDrawer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //toolbar
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //mdrawer view
+        mDrawer = findViewById(R.id.myDrawerLayout);
+
+        //drawer Navigation
+        nvDrawer = findViewById(R.id.nvView);
+        setupDrawerContent(nvDrawer);
+    }
+
+    private void setupDrawerContent(NavigationView nvDrawer) {
+
+        nvDrawer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                selectDrawerItem(item);
+                return true;
+            }
+        });
+    }
+
+    private void selectDrawerItem(MenuItem item) {
+
+        Fragment fragment = null;
+        Class fragmentClass;
+
+        switch (item.getItemId()){
+            case R.id.user:
+                fragmentClass = UserFragment.class;
+                break;
+            case R.id.call:
+                fragmentClass = CallFragment.class;
+                break;
+            case R.id.setting:
+                fragmentClass = SettingFragment.class;
+                break;
+            default:
+                fragmentClass = UserFragment.class;
+        }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        }catch (IllegalAccessException | InstantiationException e){
+            e.printStackTrace();
+        }
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent,fragment).commit();
+
+        item.setChecked(true);
+
+        setTitle(item.getTitle());
+
+        mDrawer.closeDrawers();
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                mDrawer.openDrawer(GravityCompat.START);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+}
